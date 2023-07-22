@@ -26,7 +26,8 @@ struct Wire
 	{
 		switch (operation)
 		{
-		case NONE: return imm;
+		case NONE:
+			return (inA ? inA->in() : imm);
 		case NOT:
 			imm = ~inA->in();
 			break;
@@ -43,6 +44,8 @@ struct Wire
 			imm = inA->in() >> imm;
 			break;
 		}
+		inA = nullptr;
+		inB = nullptr;
 		operation = NONE;
 		return imm;
 	}
@@ -66,11 +69,12 @@ int main()
 		std::stringstream str{ line };
 		while (std::getline(str, words.back(), ' '))
 			words.push_back("");
+		words.pop_back();
 		text.push_back(words);
 	}
 
 	std::unordered_map<std::string, Wire> circuit{};
-
+	
 	for (const std::vector<std::string>& line : text)
 		circuit.emplace(line.back(), Wire{});
 
@@ -91,8 +95,8 @@ int main()
 			if (isNumber(line[0]))
 				circuit[line.back()].imm = static_cast<uint16_t>(std::stoi(line[0]));
 			else circuit[line.back()].inA = &circuit[line[0]];
-			if (isNumber(line[0]))
-				circuit[line.back()].imm = static_cast<uint16_t>(std::stoi(line[0]));
+			if (isNumber(line[2]))
+				circuit[line.back()].imm = static_cast<uint16_t>(std::stoi(line[2]));
 			else circuit[line.back()].inB = &circuit[line[2]];
 
 			if (line[1] == "AND")
