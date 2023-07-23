@@ -18,10 +18,11 @@ int main()
 			{
 				if (data[j] == '{' || data[j] == '[') depth++;
 				else if (data[j] == '}' || data[j] == ']') depth--;
-				if (depth != 0) continue;
+				if (depth > 1) continue;
+				else if (depth == 0) break;
 				if (data.substr(j, 3) == "red")
 				{
-					while (depth >= 0)
+					while (depth >= 1)
 					{
 						j++;
 						if (data[j] == '{' || data[j] == '[') depth++;
