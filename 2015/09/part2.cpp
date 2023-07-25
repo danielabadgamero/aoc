@@ -34,16 +34,16 @@ int main()
 	for (const auto& city : tmp)
 		cities.push_back(city);
 
-	int minDistance{ INT_MAX };
+	int maxDistance{};
 	while (std::next_permutation(cities.begin(), cities.end()))
 	{
 		int distance{};
 		for (std::vector<std::string>::iterator city{ cities.begin() }; city != cities.end() - 1; city++)
 			distance += distances[*city][*(city + 1)];
-		if (distance < minDistance) minDistance = distance;
+		if (distance > maxDistance) maxDistance = distance;
 	}
 
-	std::cout << minDistance << std::endl;
+	std::cout << maxDistance << std::endl;
 
 	return 0;
 }
