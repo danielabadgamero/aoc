@@ -1,18 +1,28 @@
+#include <string>
 #include <vector>
 #include <fstream>
 #include <iostream>
-#include <iterator>
+
+static size_t prev(size_t num)
+{
+	if (num == 1) return 20151125;
+	else return (prev(num - 1) * 252533) % 33554393;
+}
 
 int main()
 {
 	std::ifstream input{ "input" };
-	std::vector<char> instructions{ std::istreambuf_iterator<char>(input), {} };
-	int floor{};
-	for (const char& c : instructions)
-		if (c == '(') floor++;
-		else if (c == ')') floor--;
 
-	std::cout << floor << std::endl;
+	const int row{ 2981 };
+	const int col{ 3075 };
+
+	size_t num{ 1 };
+	for (int i{ 1 }; i != row; i++) num += i;
+	for (int i{ 1 }; i != col; i++) num += i + row;
+
+	num = prev(num);
+
+	std::cout << num << std::endl;
 
 	return 0;
 }
