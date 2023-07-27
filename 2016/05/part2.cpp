@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <algorithm>
 
 
 std::string calculate_md5(const std::string& str)
@@ -33,12 +34,17 @@ int main()
 	std::string id{};
 	std::getline(input, id);
 
-	int index{};
-	std::string password{};
-	for (int i{}; i != 8; i++)
-		password.push_back(nextHash(index, id).at(5));
+	std::vector<char> pass(8);
+	for (int i{}; std::find(pass.begin(), pass.end(), 0) != pass.end(); i++)
+	{
+		std::string hash{ nextHash(i, id) };
+		if (hash[5] > '7') continue;
+		if (pass.at(hash[5] - '0')) continue;
+		pass[hash[5] - '0'] = hash[6];
+	}
 
-	std::cout << password << std::endl;
+	for (const char& c : pass) std::cout << c;
+	std::cout << std::endl;
 
 	return 0;
 }

@@ -1,2 +1,2 @@
 %: part%.cpp
-	g++ -Werror -Wall -Wextra -std=c++20 $^ -o $@
+	g++ -Wall -Wextra -std=c++20 $^ -o $@ -lssl -lcrypto
