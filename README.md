@@ -1,4 +1,4 @@
-adventofcode.com
+# [Advent of Code](adventofcode.com)
 
 Trying to solve every single problem!
 Current status: 96*
