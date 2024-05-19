@@ -1,66 +1,52 @@
-#include <vector>
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-bool grid[1000][1000]{};
+int lights[1000][1000] = {};
 
 int main()
 {
-	std::ifstream input{ "input" };
-	std::string line{};
-	int count{};
-	while (std::getline(input, line))
+  FILE* input = fopen("input", "r");
+  char* line = malloc(1);
+  size_t line_size = 1;
+  ssize_t n;
+  while ((n = getline(&line, &line_size, input)) > 0)
+    {
+      int coords[4];
+      char* tail = line;
+      for (int i = 0; i != 4; i++)
 	{
-		std::stringstream str{ line };
-		std::vector<std::string> words(1);
-		while (std::getline(str, words.back(), ' '))
-			words.push_back("");
-
-		if (words[0] == "toggle")
-		{
-			int xStart{ std::stoi(words[1].substr(0, words[1].find(','))) };
-			int xEnd{ std::stoi(words[3].substr(0, words[3].find(','))) };
-			int yStart{ std::stoi(words[1].substr(words[1].find(',') + 1)) };
-			int yEnd{ std::stoi(words[3].substr(words[3].find(',') + 1)) };
-
-			for (int y{ yStart }; y <= yEnd; y++)
-				for (int x{ xStart }; x <= xEnd; x++)
-					if (grid[y][x])
-					{
-						count--;
-						grid[y][x] = false;
-					}
-					else
-					{
-						count++;
-						grid[y][x] = true;
-					}
-		}
-		else
-		{
-			int xStart{ std::stoi(words[2].substr(0, words[2].find(','))) };
-			int xEnd{ std::stoi(words[4].substr(0, words[4].find(','))) };
-			int yStart{ std::stoi(words[2].substr(words[2].find(',') + 1)) };
-			int yEnd{ std::stoi(words[4].substr(words[4].find(',') + 1)) };
-			
-			for (int y{ yStart }; y <= yEnd; y++)
-				for (int x{ xStart }; x <= xEnd; x++)
-					if (words[1] == "on")
-					{
-						if (!grid[y][x]) count++;
-						grid[y][x] = true;
-					}
-					else
-					{
-						if (grid[y][x]) count--;
-						grid[y][x] = false;
-					}
-		}
+	  while (!isdigit(*tail)) tail++;
+	  coords[i] = strtol(tail, &tail, 10);
 	}
+      
+      if (strstr(line, "toggle"))
+	{
+	  for (int i = coords[0]; i <= coords[2]; i++)
+	    for (int j = coords[1]; j <= coords[3]; j++)
+	      lights[j][i] = !lights[j][i];
+	}
+      else if (strstr(line, "turn on"))
+	{
+	  for (int i = coords[0]; i <= coords[2]; i++)
+	    for (int j = coords[1]; j <= coords[3]; j++)
+	      lights[j][i] = 1;
+	}
+      else if (strstr(line, "turn off"))
+	{
+	  for (int i = coords[0]; i <= coords[2]; i++)
+	    for (int j = coords[1]; j <= coords[3]; j++)
+	      lights[j][i] = 0;
+	}
+    }
 
-	std::cout << count << std::endl;
+  int count = 0;
+  for (int i = 0; i != 1000; i++)
+    for (int j = 0; j != 1000; j++)
+      count += lights[j][i];
 
-	return 0;
+  printf("%d\n", count);
+
+  return 0;
 }

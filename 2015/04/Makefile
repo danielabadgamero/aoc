@@ -1,2 +1,2 @@
 %: part%.c
-	gcc $^ -o $@ -Wall -Wextra -Werror
+	gcc $^ -o $@ -Wall -Wextra -Werror -lcrypto

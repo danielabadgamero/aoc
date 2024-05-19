@@ -1,43 +1,38 @@
-#include <vector>
-#include <string>
-#include <fstream>
-#include <iostream>
-#include <algorithm>
-
-constexpr std::string forbidden[]{ "ab", "cd", "pq", "xy" };
-constexpr char vowels[]{ 'a', 'e', 'i', 'o', 'u' };
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 int main()
 {
-	std::ifstream input{ "input" };
-	std::string line{};
-	int count{};
-	while (std::getline(input, line))
-	{
-		bool nice{ true };
-		for (const std::string& str : forbidden)
-			if (line.find(str) != line.npos)
-			{
-				nice = false;
-				break;
-			}
-		if (!nice) continue;
-		int vowelCount{};
-		for (const char& c : vowels)
-			if (vowelCount >= 3) break;
-			else vowelCount += std::count(line.begin(), line.end(), c);
-		if (vowelCount < 3) continue;
-		nice = false;
-		for (std::string::iterator c{ line.begin() }; c != line.end() - 1; c++)
-			if (*c == *(c + 1))
-			{
-				nice = true;
-				break;
-			}
-		if (nice) count++;
-	}
-	
-	std::cout << count << std::endl;
+  FILE* input = fopen("input", "r");
 
-	return 0;
+  char* line = malloc(1);
+  size_t line_size = 1;
+  ssize_t n;
+
+  int nice_count = 0;
+  
+  while ((n = getline(&line, &line_size, input)) != -1)
+    {
+      if (strstr(line, "ab") || strstr(line, "cd") || strstr(line, "pq") || strstr(line, "xy"))
+	continue;
+      int vowel_count = 0;
+      for (int i = 0; i != n; i++)
+	{
+	  if (vowel_count >= 3) break;
+	  if (line[i] == 'a' || line[i] == 'e' || line[i] == 'i' || line[i] == 'o' || line[i] == 'u')
+	    vowel_count++;
+	}
+      if (vowel_count < 3) continue;
+      for (int i = 0; i != n - 1; i++)
+	if (line[i] == line[i + 1])
+	  {
+	    nice_count++;
+	    break;
+	  }
+    }
+
+  printf("%d\n", nice_count);
+	
+  return 0;
 }

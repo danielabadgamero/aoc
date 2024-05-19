@@ -1,46 +1,43 @@
-#include <openssl/md5.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <openssl/evp.h>
 
-#include <string>
-#include <vector>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <iterator>
-
-std::string calculate_md5(const std::string& str)
+void create_hash(const char* key, unsigned char* hash)
 {
-	unsigned char result[MD5_DIGEST_LENGTH]{};
-	MD5((unsigned char*)str.c_str(), str.size(), result);
-
-	std::ostringstream sout{};
-	sout << std::hex << std::setfill('0');
-	for(long long c : result)
-		sout << std::setw(2) << (long long)c;
-	return sout.str();
+  EVP_MD_CTX* mdctx = EVP_MD_CTX_new();
+  const EVP_MD* md = EVP_md5();
+  EVP_DigestInit_ex(mdctx, md, NULL);
+  EVP_DigestUpdate(mdctx, key, strlen(key));
+  EVP_DigestFinal_ex(mdctx, hash, NULL);
+  EVP_MD_CTX_free(mdctx);
 }
 
 int main()
 {
-	std::ifstream input{ "input" };
-	std::string key{ std::istreambuf_iterator<char>(input), {} };
-	size_t index{ key.find('\n') };
-	while (index != key.npos)
-	{
-		key.erase(index);
-		index = key.find('\n');
-	}
+  FILE* input = fopen("input", "r");
+  char* key = calloc(16, sizeof(char));
+  size_t key_size = 16;
+  getline(&key, &key_size, input);
 
-	bool found{};
-	int i{};
-	for (; !found; i++)
-	{
-		std::string str{ key + std::to_string(i) };
-		std::string result{ calculate_md5(str) };
-		for (int c{}; c != 6; c++)
-			if (result[c] != '0') break;
-			else if (c == 5) found = true;
-	}
-	std::cout << --i << std::endl;
+  unsigned char hash[16];
 
-	return 0;
+  int num = -1;
+
+  for (int i = 0; num == -1; i++)
+    {
+      sprintf(key + 8, "%d", i);
+      create_hash(key, hash);
+      for (int j = 0; hash[j] == 0; j++)
+	if (j == 2)
+	  {
+	    num = i;
+	    break;
+	  }
+    }
+
+  printf("%d\n", num);
+  
+  return 0;
 }
