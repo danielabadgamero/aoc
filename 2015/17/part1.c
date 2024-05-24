@@ -1,27 +1,25 @@
-#include <string>
-#include <vector>
-#include <fstream>
-#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
 
 int main()
 {
-	std::ifstream input{ "input" };
-	std::vector<int> capacities{};
-	std::string line{};
-	while (std::getline(input, line))
-		capacities.push_back(std::stoi(line));
+  FILE* input = fopen("input", "r");
+  int capacities[20];
 
-	int count{};
-	for (size_t i{}; i != 1ul << capacities.size(); i++)
-	{
-		int vol{};
-		for (size_t b{}; b != capacities.size(); b++)
-			if (i & (1 << b)) vol += capacities[b];
-		if (vol == 150)
-			count++;
-	}
+  for (int i = 0; i != 20; i++)
+    fscanf(input, "%d", capacities + i);
+  
+  int count = 0;
+  for (size_t i = 0; i != 1ul << 20; i++)
+    {
+      int vol = 0;
+      for (size_t b = 0; b != 20; b++)
+	if (i & (1 << b)) vol += capacities[b];
+      if (vol == 150)
+	count++;
+    }
+  
+  printf("%d\n", count);
 
-	std::cout << count << std::endl;
-
-	return 0;
+  return 0;
 }

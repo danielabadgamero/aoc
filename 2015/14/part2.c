@@ -1,69 +1,81 @@
-#include <string>
-#include <vector>
-#include <sstream>
-#include <fstream>
-#include <iostream>
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-struct Reindeer
+typedef struct reindeer_t
 {
-	int speed{};
-	int flightTime{};
-	int restTime{};
-	bool flying{ true };
-	int chrono{};
-	int distance{};
-	int points{};
-};
+  int speed;
+  int flight_time;
+  int resting_time;
+  int flying;
+  int chrono;
+  int distance;
+  int points;
+} reindeer_t;
+
+void next_num(char* line, int* index)
+{
+  while (!isdigit(line[*index])) (*index)++;
+}
 
 int main()
 {
-	std::ifstream input{ "input" };
-	std::string line{};
-	std::vector<Reindeer> reindeers{};
-	while (std::getline(input, line))
+  FILE* input = fopen("input", "r");
+  char* line = NULL;
+  size_t len = 0;
+  ssize_t n;
+  reindeer_t r_vec[9];
+  int r_index = 0;
+  while ((n = getline(&line, &len, input)) > 0)
+    {
+      int num_index = 0;
+      next_num(line, &num_index);
+      r_vec[r_index].speed = strtol(line + num_index, NULL, 10);
+      num_index += 5;
+      next_num(line, &num_index);
+      r_vec[r_index].flight_time = strtol(line + num_index, NULL, 10);
+      num_index += 5;
+      next_num(line, &num_index);
+      r_vec[r_index].resting_time = strtol(line + num_index, NULL, 10);
+      r_vec[r_index].flying = 1;
+      r_vec[r_index].chrono = 0;
+      r_vec[r_index].distance = 0;
+      r_vec[r_index].points = 0;
+      r_index++;
+    }
+  
+  for (int s = 0; s <= 2503; s++)
+    {
+      int max_dist = 0;
+      for (int i = 0; i != 9; i++)
 	{
-		std::stringstream str{ line };
-		std::vector<std::string> words(1);
-		while (std::getline(str, words.back(), ' ')) words.push_back("");
-		reindeers.push_back
-			({
-			 	std::stoi(words[3]),
-				std::stoi(words[6]),
-				std::stoi(words[13]),
-			});
-	}
-
-	for (int s{}; s <= 2503; s++)
-	{
-		int maxDist{};
-		for (Reindeer& r : reindeers)
+	r_vec[i].chrono++;
+	  if (r_vec[i].flying)
+	    {
+	      r_vec[i].distance += r_vec[i].speed;
+	      if (r_vec[i].chrono == r_vec[i].flight_time)
 		{
-			r.chrono++;
-			if (r.flying)
-			{
-				r.distance += r.speed;
-				if (r.chrono == r.flightTime)
-				{
-					r.chrono = 0;
-					r.flying = false;
-				}
-			}
-			else if (r.chrono == r.restTime)
-			{
-				r.chrono = 0;
-				r.flying = true;
-			}
-			if (r.distance > maxDist) maxDist = r.distance;
+		  r_vec[i].chrono = 0;
+		  r_vec[i].flying = 0;
 		}
-		for (Reindeer& r : reindeers)
-			if (r.distance == maxDist) r.points++;
+	    }
+	  else if (r_vec[i].chrono == r_vec[i].resting_time)
+	    {
+	      r_vec[i].chrono = 0;
+	      r_vec[i].flying = 1;
+	    }
+	  if (r_vec[i].distance > max_dist) max_dist = r_vec[i].distance;
 	}
-
-	int maxPoints{};
-	for (Reindeer& r : reindeers)
-		if (r.points > maxPoints) maxPoints = r.points;
-	
-	std::cout << maxPoints << std::endl;
-
-	return 0;
+      for (int i = 0; i != 9; i++)
+	if (r_vec[i].distance == max_dist) r_vec[i].points++;
+    }
+  
+  int max_points = 0;
+  for (int i = 0; i != 9; i++)
+    if (r_vec[i].points > max_points) max_points = r_vec[i].points;
+  
+  printf("%d\n", max_points);
+  
+  return 0;
 }

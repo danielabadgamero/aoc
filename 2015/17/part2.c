@@ -1,34 +1,31 @@
-#include <map>
-#include <string>
-#include <vector>
-#include <climits>
-#include <fstream>
-#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
 
 int main()
 {
-	std::ifstream input{ "input" };
-	std::vector<int> capacities{};
-	std::string line{};
-	while (std::getline(input, line))
-		capacities.push_back(std::stoi(line));
+  FILE* input = fopen("input", "r");
+  int capacities[20];
+  for (int i = 0; i != 20; i++)
+    fscanf(input, "%d", capacities + i);
 
-	int min{ INT_MAX };
-	std::map<int, int> minimum{};
-	for (size_t i{}; i != 1ul << capacities.size(); i++)
+  int min = INT_MAX;
+  int minimum[20] = {};
+  for (size_t i = 0; i != 1ul << 20; i++)
+    {
+      int vol = 0;
+      int count = 0;
+      for (size_t b = 0; b != 20; b++)
+	if (i & (1 << b)) (vol += capacities[b]), count++;
+      if (vol == 150)
 	{
-		int vol{};
-		int count{};
-		for (size_t b{}; b != capacities.size(); b++)
-			if (i & (1 << b)) (vol += capacities[b]), count++;
-		if (vol == 150)
-		{
-			if (count < min) min = count;
-			minimum[count]++;
-		}
+	  if (count < min) min = count;
+	  minimum[count]++;
 	}
-
-	std::cout << minimum[min] << std::endl;
-
-	return 0;
+    }
+  
+  printf("%d\n", minimum[min]);
+  
+  return 0;
 }

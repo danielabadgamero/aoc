@@ -36,6 +36,7 @@ int main()
 	    break;
 	  }
     }
+  free(key);
 
   printf("%d\n", num);
   

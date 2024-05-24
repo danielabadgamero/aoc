@@ -8,8 +8,8 @@ int lights[1000][1000] = {};
 int main()
 {
   FILE* input = fopen("input", "r");
-  char* line = malloc(1);
-  size_t line_size = 1;
+  char* line = NULL;
+  size_t line_size = 0;
   ssize_t n;
   while ((n = getline(&line, &line_size, input)) > 0)
     {
@@ -40,6 +40,7 @@ int main()
 	      if (lights[j][i]) lights[j][i]--;
 	}
     }
+  free(line);
 
   int count = 0;
   for (int i = 0; i != 1000; i++)

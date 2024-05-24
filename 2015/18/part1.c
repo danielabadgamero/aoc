@@ -1,89 +1,56 @@
-#include <stack>
-#include <vector>
-#include <fstream>
-#include <iostream>
-#include <algorithm>
-#include <unordered_map>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-struct Pos
+#define GRID_SIZE 100
+
+void step(int dst[GRID_SIZE][GRID_SIZE], int src[GRID_SIZE][GRID_SIZE])
 {
-	int x{};
-	int y{};
-
-	bool operator==(const Pos& B) const
-	{
-		return x == B.x && y == B.y;
-	}
-};
-
-struct Hash
-{
-	size_t operator()(const Pos& p) const
-	{
-		return (static_cast<size_t>(p.x) << 32) | p.y;
-	}
-};
-
-int countNeighbours(const std::unordered_map<Pos, bool, Hash>& grid, const Pos& p)
-{
-	int count{};
-	for (int ny{ p.y - 1 }; ny != p.y + 2; ny++)
-		for (int nx{ p.x - 1 }; nx != p.x + 2; nx++)
-			if (ny == p.y && nx == p.x) continue;
-			else if (grid.at({ nx, ny })) count++;
-	return count;
-}
-
-void step(std::unordered_map<Pos, bool, Hash>& grid)
-{
-	std::stack<Pos> newState{};
-	for (int x{}; x != 100; x++)
-		for (int y{}; y != 100; y++)
-		{
-			int count{ countNeighbours(grid, { x, y }) };
-			if (grid.at({ x, y }))
-			{
-				if (count != 2 && count != 3) newState.push({ x, y });
-			}
-			else if (count == 3) newState.push({ x, y });
-		}
-
-	while (!newState.empty())
-	{
-		grid[newState.top()] = !grid[newState.top()];
-		newState.pop();
-	}
+  for (int i = 0; i != GRID_SIZE; i++)
+    for (int j = 0; j != GRID_SIZE; j++)
+      {
+	int neighbours = 0;
+	for (int y = j - 1; y != j + 2; y++)
+	  for (int x = i - 1; x != i + 2; x++)
+	    if (y == j && x == i) continue;
+	    else if (x < 0 || y < 0 || x > GRID_SIZE - 1 || y > GRID_SIZE - 1) continue;
+	    else neighbours += src[x][y];
+	if (src[i][j])
+	  dst[i][j] = neighbours == 2 || neighbours == 3;
+	else
+	  dst[i][j] = neighbours == 3;
+      }
 }
 
 int main()
 {
-	std::ifstream input{ "input" };
-	std::string line{};
-	int inputY{};
-	std::unordered_map<Pos, bool, Hash> lights{};
-	while (std::getline(input, line))
-	{
-		for (int x{}; x != static_cast<int>(line.size()); x++)
-			lights.emplace(Pos{ x, inputY }, line[x] == '#');
-		inputY++;
-	}
+  FILE* input = fopen("input", "r");
+  char* line = NULL;
+  size_t len = 0;
+  int lights[GRID_SIZE][GRID_SIZE];
+  int row = 0;
+  while (getline(&line, &len, input) > 0)
+    {
+      for (int i = 0; i != GRID_SIZE; i++)
+	lights[row][i] = line[i] == '#';
+      row++;
+    }
+  free(line);
 
-	for (int x{ -1 }; x != 101; x++)
-	{
-		lights.emplace(Pos{ x, -1 }, false);
-		lights.emplace(Pos{ x, 100 }, false);
-	}
-	for (int y{}; y != 100; y++)
-	{
-		lights.emplace(Pos{ -1, y }, false);
-		lights.emplace(Pos{ 100, y }, false);
-	}
+  for (int i = 0; i != GRID_SIZE; i++)
+    {
+      int buf[GRID_SIZE][GRID_SIZE];
+      step(buf, lights);
+      for (int j = 0; j != GRID_SIZE; j++)
+	memcpy(lights[j], buf[j], GRID_SIZE * sizeof(int));
+    }
 
-	for (int i{}; i != 100; i++)
-		step(lights);
+  int count = 0;
+  for (int i = 0; i != GRID_SIZE; i++)
+    for (int j = 0; j != GRID_SIZE; j++)
+      count += lights[j][i];
 
-	long int count{ std::count_if(lights.begin(), lights.end(), [](auto& state) { return state.second; }) };
-	std::cout << count << std::endl;
+  printf("%d\n", count);
 
-	return 0;
+  return 0;
 }

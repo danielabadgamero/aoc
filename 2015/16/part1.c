@@ -1,46 +1,50 @@
-#include <string>
-#include <vector>
-#include <sstream>
-#include <fstream>
-#include <iostream>
-#include <unordered_map>
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int match(const char* item, int num, const char* line)
+{
+  const char* info = strstr(line, item);
+  if (!info) return 1;
+  int index = info - line;
+  while (!isdigit(line[index])) index++;
+  return num == strtol(line + index, NULL, 10);
+}
+
+const char* items[10] =
+  {
+    "children",
+    "cats",
+    "samoyeds",
+    "pomeranians",
+    "akitas",
+    "vizslas",
+    "goldfish",
+    "trees",
+    "cars",
+    "perfumes"
+  };
+
+int count[10] = { 3, 7, 2, 3, 0, 0, 5, 3, 2, 1 };
 
 int main()
 {
-	std::ifstream input{ "input" };
-	std::string line{};
-	const std::unordered_map<std::string, int> real
-	{
-		{ "children:", 3 },
-		{ "cats:", 7 },
-		{ "samoyeds:", 2 },
-		{ "pomeranians:", 3 },
-		{ "akitas:", 0 },
-		{ "vizslas:", 0 },
-		{ "goldfish:", 5 },
-		{ "trees:", 3 },
-		{ "cars:", 2 },
-		{ "perfumes:", 1 }
-	};
-	int sue{};
-	while (std::getline(input, line))
-	{
-		std::vector<std::string> words{};
-		std::stringstream str{ line };
-		do words.push_back("");
-		while (std::getline(str, words.back(), ' '));
-		bool valid{ true };
-		for (int i{}; i != 3; i++)
-			if (real.at(words[i * 2 + 2]) != std::stoi(words[i * 2 + 3]))
-				valid = false;
-		if (valid)
-		{
-			sue = std::stoi(words[1]);
-			break;
-		}
-	}
+  FILE* input = fopen("input", "r");
+  char* line = NULL;
+  size_t len = 0;
+  int counter = 0;
+  while (getline(&line, &len, input) > 0)
+    {
+      counter++;
+      int matches = 1;
+      for (int i = 0; i != 10; i++)
+	matches *= match(items[i], count[i], line);
+      if (matches) break;
+    }
+  free(line);
 
-	std::cout << sue << std::endl;
+  printf("%d\n", counter);
 
-	return 0;
+  return 0;
 }

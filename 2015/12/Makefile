@@ -1,2 +1,2 @@
-%/%.c:
-	gcc $^ -o $@ -Wall -Wextra -Werror
+%: part%.c
+	gcc $^ -o $@ -Wall -Wextra -Werror -lm

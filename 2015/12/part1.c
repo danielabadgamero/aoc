@@ -1,25 +1,29 @@
-#include <string>
-#include <fstream>
-#include <iostream>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
 int main()
 {
-	std::ifstream input{ "input" };
-	std::string data{};
-	std::getline(input, data);
+  FILE* input = fopen("input", "r");
+  char* data = NULL;
+  size_t len = 0;
+  ssize_t n = getline(&data, &len, input);
 
-	int sum{};
-	std::string buffer{};
-	for (const char& c : data)
-		if (c == '-' || (c >= '0' && c <= '9'))
-			buffer.push_back(c);
-		else if (!buffer.empty())
-		{
-			sum += std::stoi(buffer);
-			buffer.clear();
-		}
+  int sum = 0;
 
-	std::cout << sum << std::endl;
+  for (int i = 0; i < n; i++)
+    if (data[i] == '-' || isdigit(data[i]))
+      {
+	int num = strtol(data + i, NULL, 10);
+	if (num != 0) i += log10(abs(num));
+	if (num < 0) i++;
+	sum += num;
+      }
 
-	return 0;
+  free(data);
+  printf("%d\n", sum);
+ 
+  return 0;
 }

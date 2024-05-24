@@ -1,22 +1,23 @@
-#include <string>
-#include <vector>
-#include <fstream>
-#include <iostream>
-#include <iterator>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 int main()
 {
-	std::ifstream input{ "input" };
-	std::string line{};
-	int diff{};
-	while (std::getline(input, line))
-	{
-		diff += 2;
-		for (std::string::iterator c{ line.begin() }; c != line.end(); c++)
-			if (*c == '\\' || *c == '"') diff++;
-	}
+  FILE* input = fopen("input", "r");
+  char* line = NULL;
+  size_t line_size = 0;
+  ssize_t n;
+  int diff = 0;
+  while ((n = getline(&line, &line_size, input)) > 0)
+    {
+      diff += 2;
+      for (int i = 0; i != n; i++)
+	if (line[i] == '\\' || line[i] == '"') diff++;
+    }
+  free(line);
 
-	std::cout << diff << std::endl;
-
-	return 0;
+  printf("%d\n", diff);
+  
+  return 0;
 }

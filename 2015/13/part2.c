@@ -1,47 +1,94 @@
-#include <set>
-#include <vector>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <iostream>
-#include <algorithm>
-#include <unordered_map>
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int next_permutation(int* arr, int size)
+{
+  int K = -1;
+  for (int k = 0; k < size - 1; k++)
+    if (arr[k] < arr[k + 1]) K = k;
+  if (K < 0) return 0;
+
+  int I = -1;
+  for (int i = 0; i < size; i++)
+    if (arr[K] < arr[i]) I = i;
+
+  {
+    int temp = arr[I];
+    arr[I] = arr[K];
+    arr[K] = temp;
+  }
+
+  {
+    int temp_size = size - (K + 1);
+    int* temp = malloc(temp_size * sizeof(int));
+    for (int i = 0; i != temp_size; i++)
+      temp[i] = arr[size - i - 1];
+    memcpy(arr + K + 1, temp, temp_size * sizeof(int));
+    free(temp);
+  }
+
+  return 1;
+}
+
+int values[9][9];
+
+int calculate_happiness(int* arr, size_t size)
+{
+  int happiness = 0;
+
+  for (size_t i = 0; i != size; i++)
+    {
+      happiness += values[arr[i]][arr[(i + 1) % size]];
+      happiness += values[arr[(i + 1) % size]][arr[i]];
+    }
+  
+  return happiness;
+}
 
 int main()
 {
-	std::ifstream input{ "input" };
-	std::string line{};
-	std::unordered_map<std::string, std::unordered_map<std::string, int>> people{};
-	std::set<std::string> tmp{};
-	std::vector<std::string> names{};
-	while (std::getline(input, line))
+  FILE* input = fopen("input", "r");
+  char* line = NULL;
+  size_t len = 0;
+  ssize_t n;
+  int table[9];
+  for (int i = 0; i != 9; i++) table[i] = i;
+  int i = 0;
+  int j = 0;
+  while ((n = getline(&line, &len, input)) > 0)
+    {
+      if (j == 8)
 	{
-		std::stringstream str{ line };
-		std::vector<std::string> words(1);
-		while (std::getline(str, words.back(), ' '))
-			words.push_back("");
-		words[10].pop_back();
-		people[words[0]][words[10]] = std::stoi(words[3]) * (words[2] == "gain" ? 1 : -1);
-		tmp.emplace(words[0]);
+	  j = 0;
+	  i++;
 	}
-	for (const auto& name : tmp) names.push_back(name);
-	names.push_back("I");
+      if (i == j) j++;
+      if (j == 8) break;
+      int number_index = 0;
+      while (!isdigit(line[number_index])) number_index++;
+      values[i][j] = strtol(line + number_index, NULL, 10);
+      if (strstr(line, "lose") != NULL) values[i][j] *= -1;
+      j++;
+    }
+  free(line);
 
-	int maxHappiness{};
-	while (std::next_permutation(names.begin(), names.end()))
-	{
-		int happiness{};
-		for (std::vector<std::string>::iterator n{ names.begin() }; n != names.end() - 1; n++)
-		{
-			happiness += people[*n][*(n + 1)];
-			happiness += people[*(n + 1)][*n];
-		}
-		happiness += people[names.front()][names.back()];
-		happiness += people[names.back()][names.front()];
-		if (happiness > maxHappiness) maxHappiness = happiness;
-	}
+  for (i = 0; i != 9; i++)
+    {
+      values[8][i] = 0;
+      values[i][8] = 0;
+    }
 
-	std::cout << maxHappiness << std::endl;
+  int max_happiness = 0;
+  do
+    {
+      int happiness = calculate_happiness(table, 9);
+      if (happiness > max_happiness) max_happiness = happiness;
+    }
+  while (next_permutation(table, 9));
 
-	return 0;
+  printf("%d\n", max_happiness);
+
+  return 0;
 }

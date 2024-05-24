@@ -69,8 +69,8 @@ unsigned short solve(const char* id)
 int main()
 {
   FILE* input = fopen("input", "r");
-  char* line = malloc(1);
-  size_t line_size = 1;
+  char* line = NULL;
+  size_t line_size = 0;
   ssize_t n;
 
   wires = malloc(1 * sizeof(wire_t));
@@ -129,6 +129,8 @@ int main()
 
       wires = realloc(wires, (++num_wires) * sizeof(wire_t));
     }
+  free(line);
+  free(wires);
 
 
   printf("%d\n", solve("a"));

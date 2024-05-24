@@ -6,8 +6,8 @@ int main()
 {
   FILE* input = fopen("input", "r");
 
-  char* line = malloc(1);
-  size_t line_size = 1;
+  char* line = NULL;
+  size_t line_size = 0;
   ssize_t n;
 
   int nice_count = 0;
@@ -31,6 +31,7 @@ int main()
 	    break;
 	  }
     }
+  free(line);
 
   printf("%d\n", nice_count);
 	
